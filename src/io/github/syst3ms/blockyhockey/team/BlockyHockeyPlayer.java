@@ -6,9 +6,6 @@ import io.github.syst3ms.blockyhockey.team.enums.TeamRole;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.PlayerInventory;
 
-import java.util.HashMap;
-import java.util.Map;
-
 public class BlockyHockeyPlayer {
 	public static final int STICK_SLOT = 36;
 	private final Player player;
@@ -64,5 +61,9 @@ public class BlockyHockeyPlayer {
 
 	public void setRef(boolean ref) {
 		isRef = ref;
+	}
+
+	public Player getPlayer() {
+		return player;
 	}
 }

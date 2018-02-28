@@ -1,6 +1,6 @@
 package io.github.syst3ms.blockyhockey;
 
-import io.github.syst3ms.blockyhockey.command.TeamCommand;
+import io.github.syst3ms.blockyhockey.command.TeamCommands;
 import io.github.syst3ms.blockyhockey.listener.ConnectListener;
 import io.github.syst3ms.blockyhockey.team.TeamManager;
 import org.bukkit.Bukkit;
@@ -11,6 +11,7 @@ public class BlockyHockey extends JavaPlugin {
 	public void onEnable() {
 		TeamManager teamManager = new TeamManager();
 		Bukkit.getPluginManager().registerEvents(new ConnectListener(teamManager),this);
-		getCommand("team").setExecutor(new TeamCommand(teamManager));
+		getCommand("team").setExecutor(new TeamCommands(teamManager));
 	}
+
 }
