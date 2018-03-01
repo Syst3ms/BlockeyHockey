@@ -1,9 +1,11 @@
-package io.github.syst3ms.blockyhockey.game;
+package io.github.syst3ms.blockyhockey.game.timer;
 
-public class StandardTimer implements Timer {
-	private int minutes;
-	private int seconds;
-	private int tenths;
+public class StandardTimer extends Timer {
+	public static final Integer[] DEFAULT_TIME = {3, 0, 0};
+
+	public StandardTimer() {
+		this(DEFAULT_TIME[0], DEFAULT_TIME[1], DEFAULT_TIME[2]);
+	}
 
 	public StandardTimer(int minutes, int seconds, int tenths) {
 		this.minutes = minutes;

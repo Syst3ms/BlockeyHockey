@@ -1,10 +1,9 @@
 package io.github.syst3ms.blockyhockey.team.enums;
 
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
+import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Color;
 import org.bukkit.Material;
-import org.bukkit.entity.Item;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
@@ -96,7 +95,6 @@ public enum BlockyHockeyTeam {
 	}
 
 	public ItemStack[] getArmor() {
-		Bukkit.getUnsafe().getMaterialFromInternalName("stone");
 		if (armorCache.containsKey(this))
 			return armorCache.get(this);
 		ItemStack[] armor = new ItemStack[4];

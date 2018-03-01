@@ -9,7 +9,7 @@ public enum TeamRole {
 	OFFENSE("Offense", Material.DIAMOND_HOE),
 	DEFENSE("Defense", Material.DIAMOND_HOE),
 	GOALIE("Goalie", Material.GOLD_HOE),
-	NONE(null, null);
+	NONE("None", Material.STICK);
 
 	private final ItemStack stickItem;
 	private final String name;
