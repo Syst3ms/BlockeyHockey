@@ -1,0 +1,20 @@
+name: BlockyHockey
+version: 0.0-ALPHA
+author: Syst3ms
+main: io.github.syst3ms.blockyhockey.BlockyHockey
+
+commands:
+  team:
+    description: 'team'
+  teams:
+    description: 'teams'
+  timertest:
+    description: 'timertest'
+  teamequiptest:
+    description: 't'
+  periodtest:
+    description: 'p'
+  spawnpucktitletest:
+    description: 's'
+  puckhittest:
+    description: 'p'

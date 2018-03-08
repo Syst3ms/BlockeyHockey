@@ -1,9 +1,7 @@
 package io.github.syst3ms.blockyhockey.command.testing;
 
 import io.github.syst3ms.blockyhockey.BlockyHockey;
-import io.github.syst3ms.blockyhockey.game.timer.OvertimeTimer;
-import io.github.syst3ms.blockyhockey.game.timer.StandardTimer;
-import io.github.syst3ms.blockyhockey.game.timer.Timer;
+import io.github.syst3ms.blockyhockey.game.Timer;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
@@ -27,7 +25,7 @@ public class TimerTestCommand implements CommandExecutor {
 			return false;
 		if (s.equalsIgnoreCase("timertest")) {
 			Player p = (Player) commandSender;
-			Timer timer = strings.length  == 0 ? new StandardTimer(1, 30, 0) : new OvertimeTimer();
+			Timer timer = new Timer(1, 30, 0);
 			taskId = Bukkit.getScheduler().scheduleSyncRepeatingTask(
 				pluginInstance,
 				() -> {

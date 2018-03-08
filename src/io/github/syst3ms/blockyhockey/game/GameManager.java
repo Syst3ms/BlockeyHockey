@@ -1,9 +1,6 @@
 package io.github.syst3ms.blockyhockey.game;
 
 import io.github.syst3ms.blockyhockey.BlockyHockey;
-import io.github.syst3ms.blockyhockey.game.timer.OvertimeTimer;
-import io.github.syst3ms.blockyhockey.game.timer.StandardTimer;
-import io.github.syst3ms.blockyhockey.game.timer.Timer;
 import io.github.syst3ms.blockyhockey.team.enums.BlockyHockeyTeam;
 import io.github.syst3ms.blockyhockey.util.StringUtils;
 import net.md_5.bungee.api.ChatColor;
@@ -12,6 +9,8 @@ import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.entity.Endermite;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -23,26 +22,35 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class GameManager {
-	public static final Location PUCK_LOCATION = new Location(Bukkit.getWorlds().get(0), 0.5, 0.5, 0.5);
+    private static Location puckLocation = new Location(Bukkit.getWorlds().get(0), 0.5, 0.5, 0.5);
 	// Managers
 	private final BlockyHockey pluginInstance;
 	private final GoalCounter goalCounter;
-	private Timer timer;
+	private final BukkitScheduler scheduler;
+    private final AttributeModifier followRangeModifier = new AttributeModifier("followRange", 0, AttributeModifier.Operation.MULTIPLY_SCALAR_1);
+    private final AttributeModifier movementSpeedModifier = new AttributeModifier("movementSpeed", 0, AttributeModifier.Operation.MULTIPLY_SCALAR_1);
+    private Timer timer;
 	// Periods
 	private int period = 1;
-	private boolean overtime;
-	private UUID puckUuid;
+    private UUID puckUuid;
 	private List<Player> playing = new ArrayList<>();
 	// Task
 	private int titleTaskId, timerTaskId, pausedTimerTaskId;
-	private final BukkitScheduler scheduler;
 
-	public GameManager(BlockyHockey pluginInstance, BlockyHockeyTeam home, BlockyHockeyTeam away) {
+    public GameManager(BlockyHockey pluginInstance, BlockyHockeyTeam home, BlockyHockeyTeam away) {
 		this.pluginInstance = pluginInstance;
-		this.timer = new StandardTimer();
+		this.timer = new Timer(false);
 		this.goalCounter = new GoalCounter(home, away);
 		scheduler = Bukkit.getScheduler();
 	}
+
+    public static void setPuckLocation(Location puckLocation) {
+        GameManager.puckLocation = puckLocation;
+    }
+
+    public UUID getPuckUuid() {
+        return puckUuid;
+    }
 
 	public void removePuck() {
 		Entity puckEntity = Bukkit.getEntity(puckUuid);
@@ -76,7 +84,7 @@ public class GameManager {
 							2
 						);
 					}
-					spawnPuckEntity(PUCK_LOCATION);
+					spawnPuckEntity(puckLocation);
 					return;
 				}
 				String hourglass = hourglasses[i];
@@ -96,18 +104,15 @@ public class GameManager {
 	}
 
 	private void spawnPuckEntity(Location loc) {
-		Endermite puck = loc.getWorld().spawn(loc, Endermite.class, e -> {
-			e.setCustomName("Puck");
-			e.setCustomNameVisible(true);
-			e.setAI(false);
-			e.setCollidable(true);
-			puckUuid = e.getUniqueId();
-		});
-		Bukkit.getScheduler().runTaskLater(
-			pluginInstance,
-			() -> puck.setGravity(false),
-			10L
-		);
+        loc.getWorld().spawn(loc, Endermite.class, e -> {
+            e.setCustomName("Puck");
+            e.setCustomNameVisible(true);
+            e.setAI(false);
+            e.setCollidable(true);
+            e.getAttribute(Attribute.GENERIC_FOLLOW_RANGE).addModifier(followRangeModifier);
+            e.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).addModifier(movementSpeedModifier);
+            puckUuid = e.getUniqueId();
+        });
 	}
 
 	private String getSubtitleText(int remainingSeconds) {
@@ -160,10 +165,12 @@ public class GameManager {
 					} else { // End of game
 						BlockyHockeyTeam winning = goalCounter.getWinningTeam();
 						if (winning == null) { // Tie
-							startOvertime();
+							for (Player player : playing) {
+							    player.sendTitle(ChatColor.DARK_AQUA + "Tie", goalCounter.getScoreString(), 5, 50, 5);
+                            }
 						} else {
 							for (Player player : playing) {
-								player.sendTitle(winning.getChatName() + "§r win !", "", 5, 4 * 20, 5);
+								player.sendTitle(winning.getChatName() + "§r win !", goalCounter.getScoreString(), 5, 50, 5);
 							}
 							finishGame();
 						}
@@ -175,9 +182,8 @@ public class GameManager {
 	}
 
 	public void startOvertime() {
-		overtime = true;
 		period = 1;
-		timer = new OvertimeTimer();
+		timer = new Timer(3, 0, 0);
 		timerTaskId = scheduler.scheduleSyncRepeatingTask(
 			pluginInstance,
 			() -> {
@@ -233,12 +239,11 @@ public class GameManager {
 		);
 	}
 
-	// Cleanup
+    // Cleanup
 
 	public void finishGame() {
 		removePuck();
 		period = 1;
-		overtime = false;
 		// TODO tp players
 	}
 

@@ -13,10 +13,12 @@ public enum TeamRole {
 
 	private final ItemStack stickItem;
 	private final String name;
+    private final Material stickType;
 
-	TeamRole(String name, Material material) {
+    TeamRole(String name, Material material) {
 		this.name = name;
-		ItemStack item = new ItemStack(material);
+        stickType = material;
+        ItemStack item = new ItemStack(material);
 		ItemMeta meta = item.getItemMeta();
 		meta.setDisplayName(name + " Stick");
 		meta.setUnbreakable(true);
@@ -32,4 +34,8 @@ public enum TeamRole {
 	public ItemStack getStickItem() {
 		return stickItem;
 	}
+
+    public Material getStickType() {
+        return stickType;
+    }
 }

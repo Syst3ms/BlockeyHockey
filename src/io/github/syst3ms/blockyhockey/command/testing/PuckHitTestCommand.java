@@ -1,0 +1,51 @@
+package io.github.syst3ms.blockyhockey.command.testing;
+
+import io.github.syst3ms.blockyhockey.BlockyHockey;
+import io.github.syst3ms.blockyhockey.util.VectorUtils;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.attribute.AttributeModifier;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandExecutor;
+import org.bukkit.command.CommandSender;
+import org.bukkit.command.ConsoleCommandSender;
+import org.bukkit.entity.Endermite;
+import org.bukkit.entity.Player;
+import org.bukkit.util.Vector;
+
+public class PuckHitTestCommand implements CommandExecutor {
+    private final BlockyHockey pluginInstance;
+
+    public PuckHitTestCommand(BlockyHockey pluginInstance) {
+        this.pluginInstance = pluginInstance;
+    }
+
+    @Override
+    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+        if (sender instanceof ConsoleCommandSender)
+            return false;
+        if (label.equalsIgnoreCase("puckhittest")) {
+            Player p = (Player) sender;
+            boolean pass = args.length == 0 || args[0].equalsIgnoreCase("pass");
+            Location loc = p.getLocation();
+            Endermite puck = loc.getWorld().spawn(loc, Endermite.class, e -> {
+                e.setCustomName("Puck");
+                e.setCustomNameVisible(true);
+                e.setCollidable(false);
+                e.setSilent(true);
+                e.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED)
+                 .addModifier(new AttributeModifier("still", -10, AttributeModifier.Operation.ADD_NUMBER));
+            });
+            Bukkit.getScheduler().runTaskLater(
+                    pluginInstance,
+                    () -> {
+                        Vector vel = VectorUtils.calculateVelocity(loc, pass);
+                        puck.setVelocity(puck.getVelocity().add(vel));
+                    },
+                    30L
+            );
+        }
+        return false;
+    }
+}

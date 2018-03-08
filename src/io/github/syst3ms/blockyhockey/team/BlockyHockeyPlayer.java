@@ -7,7 +7,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.PlayerInventory;
 
 public class BlockyHockeyPlayer {
-	public static final int STICK_SLOT = 36;
+	public static final int STICK_SLOT = 0;
 	private final Player player;
 	private BlockyHockeyTeam team;
 	private TeamRole role;
