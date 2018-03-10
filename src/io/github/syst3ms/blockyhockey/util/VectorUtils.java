@@ -9,19 +9,12 @@ import java.util.Random;
  * With courtesy of bi0qaw
  */
 public class VectorUtils {
-    public static final double PASS_MODIFIER = 1.5;
-    public static final double SHOOT_MODIFIER = 2;
+    public static final double PASS_MODIFIER = 1;
+    public static final double SHOOT_MODIFIER = 1.25;
     public static final double PI = Math.PI;
     public static final double DEG_TO_RAD = PI / 180;
     public static final double RAD_TO_DEG =  180 / PI;
     private static final Random rnd = new Random();
-
-    public static float getYaw(Vector vector) {
-        if (((Double) vector.getX()).equals((double) 0) && ((Double) vector.getZ()).equals((double) 0)){
-            return 0;
-        }
-        return (float) (Math.atan2(vector.getZ(), vector.getX()) * RAD_TO_DEG);
-    }
 
     public static Vector fromYawAndPitch(float yaw, float pitch) {
         double y = Math.sin(pitch * DEG_TO_RAD);

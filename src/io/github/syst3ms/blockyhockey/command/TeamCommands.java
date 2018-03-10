@@ -21,19 +21,19 @@ public class TeamCommands implements CommandExecutor {
 	}
 
 	@Override
-	public boolean onCommand(CommandSender sender, Command command, String s, String[] strings) {
-		if (s.equalsIgnoreCase("team")) {
+	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+		if (label.equalsIgnoreCase("team")) {
 			if (sender instanceof ConsoleCommandSender) {
 				sender.sendMessage("This command can't be used from the console !");
 				return true;
 			}
 			Player p = (Player) sender;
 			BlockyHockeyPlayer bhPlayer = manager.getPlayer(p);
-			if (strings.length == 0) {
+			if (args.length == 0) {
 				p.sendMessage("Your team : " + bhPlayer.getTeam().getChatName());
 				return true;
 			}
-			String name = strings[0];
+			String name = String.join(" ", args);
 			if (name.equalsIgnoreCase("leave") || name.equalsIgnoreCase("quit")) {
 				bhPlayer.setTeam(BlockyHockeyTeam.NONE);
 				p.sendMessage("§aYou left your current team !");
@@ -54,7 +54,7 @@ public class TeamCommands implements CommandExecutor {
 			bhPlayer.setTeam(chosen);
 			p.sendMessage("§aYou chose " + chosen.getChatName() + "§a as your team !");
 			return true;
-		} else if (s.equalsIgnoreCase("teams")) {
+		} else if (label.equalsIgnoreCase("teams")) {
 			List<String> messages = new ArrayList<>(BlockyHockeyTeam.values().length + 1);
 			messages.add("List of all teams :");
 			for (BlockyHockeyTeam team : BlockyHockeyTeam.values()) {
