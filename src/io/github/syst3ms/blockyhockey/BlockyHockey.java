@@ -1,6 +1,7 @@
 package io.github.syst3ms.blockyhockey;
 
 import io.github.syst3ms.blockyhockey.command.TeamCommands;
+import io.github.syst3ms.blockyhockey.command.testing.GoalTitleTestCommand;
 import io.github.syst3ms.blockyhockey.command.testing.PeriodTestCommand;
 import io.github.syst3ms.blockyhockey.command.testing.PuckHitTestCommand;
 import io.github.syst3ms.blockyhockey.command.testing.SpawningPuckTitleTest;
@@ -39,5 +40,6 @@ public class BlockyHockey extends JavaPlugin {
         getCommand("periodtest").setExecutor(new PeriodTestCommand(this));
         getCommand("spawnpucktitletest").setExecutor(new SpawningPuckTitleTest(this));
         getCommand("puckhittest").setExecutor(new PuckHitTestCommand(this));
+        getCommand("goaltitletest").setExecutor(new GoalTitleTestCommand(this));
     }
 }

@@ -2,6 +2,8 @@ package io.github.syst3ms.blockyhockey.game;
 
 import io.github.syst3ms.blockyhockey.BlockyHockey;
 import io.github.syst3ms.blockyhockey.team.enums.BlockyHockeyTeam;
+import io.github.syst3ms.blockyhockey.util.LocationUtils;
+import io.github.syst3ms.blockyhockey.util.SchedulerUtils;
 import io.github.syst3ms.blockyhockey.util.StringUtils;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ChatMessageType;
@@ -23,6 +25,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class GameManager {
     private static Location puckLocation = new Location(Bukkit.getWorlds().get(0), 0.5, 0.5, 0.5);
+    private static int[][] goalRanges = new int[][] {{0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}};
 	// Managers
 	private final BlockyHockey pluginInstance;
 	private final GoalCounter goalCounter;
@@ -35,7 +38,7 @@ public class GameManager {
     private UUID puckUuid;
 	private List<Player> playing = new ArrayList<>();
 	// Task
-	private int titleTaskId, timerTaskId, pausedTimerTaskId;
+	private int titleTaskId, timerTaskId, pausedTimerTaskId, puckDetectTaskId;
 
     public GameManager(BlockyHockey pluginInstance, BlockyHockeyTeam home, BlockyHockeyTeam away) {
 		this.pluginInstance = pluginInstance;
@@ -56,6 +59,7 @@ public class GameManager {
 		Entity puckEntity = Bukkit.getEntity(puckUuid);
 		if (puckEntity != null) {
 			puckEntity.remove();
+			Bukkit.getScheduler().cancelTask(puckDetectTaskId);
 		}
 	}
 
@@ -85,6 +89,7 @@ public class GameManager {
 						);
 					}
 					spawnPuckEntity(puckLocation);
+					startPuckDetection();
 					return;
 				}
 				String hourglass = hourglasses[i];
@@ -131,6 +136,7 @@ public class GameManager {
 	public void startTimer() {
 		scheduler.cancelTask(pausedTimerTaskId);
 		pausedTimerTaskId = 0;
+		respawnPuck();
 		timerTaskId = scheduler.scheduleSyncRepeatingTask(
 			pluginInstance,
 			() -> {
@@ -182,7 +188,10 @@ public class GameManager {
 	}
 
 	public void startOvertime() {
+        Bukkit.getScheduler().cancelTask(pausedTimerTaskId);
+        pausedTimerTaskId = 0;
 		period = 1;
+		respawnPuck();
 		timer = new Timer(3, 0, 0);
 		timerTaskId = scheduler.scheduleSyncRepeatingTask(
 			pluginInstance,
@@ -223,21 +232,58 @@ public class GameManager {
 		);
 	}
 
-	public void pauseTimer() {
+	public void pauseTimer(boolean linger) {
 		Bukkit.getScheduler().cancelTask(timerTaskId);
-		TextComponent timerComponent = new TextComponent(timer.getTimeString());
-		timerComponent.setColor(ChatColor.GRAY);
-		pausedTimerTaskId = Bukkit.getScheduler().scheduleSyncRepeatingTask(
-			pluginInstance,
-			() -> {
-				for (Player player : playing) {
-					player.spigot().sendMessage(ChatMessageType.ACTION_BAR, timerComponent);
-				}
-			},
-			1L,
-			30L
-		);
+		Bukkit.getScheduler().cancelTask(puckDetectTaskId);
+		if (linger) {
+            TextComponent timerComponent = new TextComponent(timer.getTimeString());
+            timerComponent.setColor(ChatColor.GRAY);
+            pausedTimerTaskId = Bukkit.getScheduler().scheduleSyncRepeatingTask(pluginInstance, () -> {
+                for (Player player : playing) {
+                    player.spigot().sendMessage(ChatMessageType.ACTION_BAR, timerComponent);
+                }
+            }, 1L, 30L);
+        }
 	}
+
+	public void startPuckDetection() {
+        Entity puck = Bukkit.getEntity(puckUuid);
+        puckDetectTaskId = Bukkit.getScheduler().scheduleSyncRepeatingTask(
+                pluginInstance,
+                () -> {
+                    Location loc = puck.getLocation();
+                    for (int i = 0; i < goalRanges.length; i++) {
+                        if (LocationUtils.isInBox(loc, goalRanges[i])) {
+                            scoreGoal(i == 0 ? goalCounter.getHome() : goalCounter.getAway());
+                        }
+                    }
+                },
+                1L,
+                1L
+        );
+    }
+
+    public void scoreGoal(BlockyHockeyTeam team) {
+        pauseTimer(false);
+        goalCounter.addScore(1, team);
+        SchedulerUtils.scheduleForTimes(
+                pluginInstance,
+                () -> {
+                    for (Player p : playing) {
+                        p.sendTitle(
+                                "§b§k!!! §r§b" + team.getChatName() + " Goal ! §k!!!",
+                                goalCounter.getScoreString(),
+                                6,
+                                8,
+                                6
+                        );
+                    }
+                },
+                1L,
+                20L,
+                5
+        );
+    }
 
     // Cleanup
 

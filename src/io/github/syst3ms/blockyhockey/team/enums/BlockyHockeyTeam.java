@@ -82,7 +82,7 @@ public enum BlockyHockeyTeam {
 	private static Map<BlockyHockeyTeam, ItemStack[]> armorCache = new HashMap<>();
 	private final ChatColor chatColor;
 	private final Color topColor;
-	private final String name;
+    private final String name;
 	private final Color bottomColor;
 	private final String chatName;
 
@@ -93,6 +93,10 @@ public enum BlockyHockeyTeam {
 		this.bottomColor = bottomColor;
 		this.chatName = chatColor + "The " + name + ChatColor.RESET;
 	}
+
+    public String getName() {
+        return name;
+    }
 
 	public ItemStack[] getArmor() {
 		if (armorCache.containsKey(this))

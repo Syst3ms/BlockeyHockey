@@ -28,6 +28,26 @@ public class GoalCounter {
 		return BaseComponent.toLegacyText(builder.create());
 	}
 
+	public void addScore(int amount, BlockyHockeyTeam team) {
+	    if (team == home) {
+	        homeScore += amount;
+        } else if (team == away) {
+	        awayScore += amount;
+        } else {
+            throw new IllegalArgumentException("The team '" + team.getDisplayName() + "' is not playing !");
+        }
+    }
+
+    public void setScore(int amount, BlockyHockeyTeam team) {
+        if (team == home) {
+            homeScore = amount;
+        } else if (team == away) {
+            awayScore = amount;
+        } else {
+            throw new IllegalArgumentException("The team '" + team.getDisplayName() + "' is not playing !");
+        }
+    }
+
 	public int getHomeScore() {
 		return homeScore;
 	}

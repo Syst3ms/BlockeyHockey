@@ -18,3 +18,5 @@ commands:
     description: 's'
   puckhittest:
     description: 'p'
+  goaltitletest:
+    description: 'g'
